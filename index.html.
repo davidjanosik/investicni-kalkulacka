@@ -1,0 +1,37 @@
+function vypocitatInvestici() {
+    // 1. Načtení hodnot z políček (předpokládám ID elementů)
+    let pocatecniVklad = parseFloat(document.getElementById('pocatecni').value) || 0;
+    let mesicniPrispevek = parseFloat(document.getElementById('prispevek').value) || 0;
+    let roky = parseInt(document.getElementById('doba').value) || 0;
+    let urok = parseFloat(document.getElementById('zhodnoceni').value) / 100 || 0;
+    let inflace = parseFloat(document.getElementById('inflace').value) / 100 || 0;
+    let navyseniKazdyX = parseInt(document.getElementById('navyseni_roky').value) || 1;
+    let oKolikNavysit = parseFloat(document.getElementById('o_kolik').value) || 0;
+
+    let nominalniHodnota = pocatecniVklad;
+    let celkovyVklad = pocatecniVklad;
+    
+    // Měsíční úročení (12 period ročně)
+    let pocetMesicu = roky * 12;
+    let mesicniUrok = urok / 12;
+
+    for (let i = 1; i <= pocetMesicu; i++) {
+        // Každých X let zvýšíme měsíční úložku
+        if (i > 1 && (i - 1) % (navyseniKazdyX * 12) === 0) {
+            mesicniPrispevek += oKolikNavysit;
+        }
+
+        // Výpočet úroku za daný měsíc
+        nominalniHodnota = (nominalniHodnota + mesicniPrispevek) * (1 + mesicniUrok);
+        celkovyVklad += mesicniPrispevek;
+    }
+
+    // Výpočet reálné hodnoty (očištěné o inflaci)
+    // Používáme vzorec: Reálná hodnota = Nominální / (1 + inflace)^roky
+    let realnaHodnota = nominalniHodnota / Math.pow((1 + inflace), roky);
+
+    // 2. Vypsání výsledků do boxů (formátování na měnu)
+    document.getElementById('vysledek_nominal').innerText = nominalniHodnota.toLocaleString('cs-CZ') + " Kč";
+    document.getElementById('vysledek_realny').innerText = realnaHodnota.toLocaleString('cs-CZ') + " Kč";
+    document.getElementById('vysledek_vklad').innerText = celkovyVklad.toLocaleString('cs-CZ') + " Kč";
+}
